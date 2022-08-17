@@ -1,0 +1,12 @@
+{
+    "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+    "editor.formatOnSave": true,
+    "files.exclude": {
+        "**/node_modules/": true,
+        "**/src/**/*.js": true,
+        "**/src/**/*.map": true
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
+}

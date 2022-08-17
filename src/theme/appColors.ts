@@ -1,0 +1,16 @@
+export const AppColors = {
+  primary: '#009B9B',
+  secondary: '',
+  white: '#FFFFFF',
+  black: '#000000',
+  dark: '#666E8A',
+  lightGray: '#F8F8F8',
+  mainTabBarGray: '#F5F5F5',
+  sliderGray: '#E7E9ED',
+  disabled: '#E0E0E0',
+  error: '#D93025',
+  red: 'red',
+  dialogBackground: '#D2F9E6',
+  url: '#009B9B',
+  email: '#009B9B',
+};
