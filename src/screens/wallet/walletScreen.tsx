@@ -1,3 +1,4 @@
+import {Currency} from 'enums/enums';
 import {ImageStorage} from 'helpers/imageStorage';
 import {Wallet} from 'models/wallet';
 import React, {useEffect} from 'react';
@@ -7,13 +8,15 @@ import {ConvertField} from './components/convertField';
 const usd: Wallet = {
   name: 'United States Dollar',
   shortName: 'USD',
-  currencyCode: 'USD',
+  currencyCode: Currency.USD,
   amount: 0,
+  convertRate: 1,
   icon: ImageStorage.usd,
 };
 
 export const WalletScreen = (props: {wallet: Wallet; navigation: any}) => {
   const {wallet, navigation} = props;
+  //const [email, setEmail] = useState('');
 
   useEffect(() => {
     navigation.setOptions({

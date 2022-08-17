@@ -1,24 +1,19 @@
 import {Currency} from 'enums/enums';
-import {Wallet} from 'models/wallet';
-import {ApiService} from './apiService';
+import {CurrencyExchange} from 'models/api/currencyExchange';
 
 export class Utils {
   private static currencyExchangeRateUrl =
     'https://spectrocoin.com/scapi/ticker/';
 
-  public static convertWalletToCurrency = async (
-    apiService: ApiService,
-    wallet: Wallet,
+  public static getCurrencyExchangeRate = async (
+    convertFrom: Currency,
     convertTo: Currency,
-  ) => {
-    const url = `${this.currencyExchangeRateUrl}/${wallet.currencyCode}/${convertTo}`;
-    try {
-      const currency = await (await apiService.getExchangeCurrency(url)).data;
-      const rate = currency.last;
-      return wallet.amount / rate;
-    } catch (error) {
-      ApiService.handleException(error);
-      return 0;
+  ): Promise<CurrencyExchange> => {
+    const url = `${this.currencyExchangeRateUrl}/${convertFrom}/${convertTo}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(response.statusText);
     }
+    return await (response.json() as unknown as Promise<CurrencyExchange>);
   };
 }

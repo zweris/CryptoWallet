@@ -1,4 +1,4 @@
-export class Currency {
+export class CurrencyExchange {
   currencyFrom!: string;
   currencyFromScale!: number;
   currencyTo!: string;

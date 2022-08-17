@@ -7,6 +7,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {AppStackParamList} from 'models/appStackParamList';
 import {Theme} from 'theme/theme';
 import {StackHeader} from 'screens/wallet/components/stackHeader';
+import {WalletProvider} from 'components/walletContext';
 
 const Stack = createStackNavigator<AppStackParamList>();
 
@@ -16,21 +17,23 @@ const App = () => {
       <SafeAreaView style={Theme.flex}>
         <StatusBar hidden={true} />
         <View style={Theme.flex}>
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" options={{header: () => null}}>
-              {props => <HomeScreen navigation={props.navigation} />}
-            </Stack.Screen>
-            <Stack.Screen
-              name="Wallet"
-              options={{header: props => <StackHeader props={props} />}}>
-              {props => (
-                <WalletScreen
-                  wallet={props.route.params.wallet}
-                  navigation={props.navigation}
-                />
-              )}
-            </Stack.Screen>
-          </Stack.Navigator>
+          <WalletProvider>
+            <Stack.Navigator initialRouteName="Home">
+              <Stack.Screen name="Home" options={{header: () => null}}>
+                {props => <HomeScreen navigation={props.navigation} />}
+              </Stack.Screen>
+              <Stack.Screen
+                name="Wallet"
+                options={{header: props => <StackHeader props={props} />}}>
+                {props => (
+                  <WalletScreen
+                    wallet={props.route.params.wallet}
+                    navigation={props.navigation}
+                  />
+                )}
+              </Stack.Screen>
+            </Stack.Navigator>
+          </WalletProvider>
         </View>
       </SafeAreaView>
     </NavigationContainer>
