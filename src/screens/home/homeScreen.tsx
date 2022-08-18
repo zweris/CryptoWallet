@@ -1,22 +1,30 @@
 import {useWalletContext} from 'components/walletContext';
 import {ImageStorage} from 'helpers/imageStorage';
+import {Utils} from 'helpers/utils';
 import {Wallet} from 'models/wallet';
-import React, {useEffect} from 'react';
-import {View, Text, Image} from 'react-native';
+import React, {useCallback, useEffect} from 'react';
+import {View, Text, Image, RefreshControl, ScrollView} from 'react-native';
+import {Theme} from 'theme/theme';
 import {WalletItem} from './components/walletItem';
 
 export const HomeScreen = ({navigation}: {navigation: any}) => {
   const walletContext = useWalletContext();
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  console.log('render');
+  const loadWallets = useCallback(async () => {
+    walletContext.fetchWallets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadWallets().then(() => setRefreshing(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    const loadData = async () => {
-      walletContext?.fetchWalletRates();
-    };
-
     const unsubscribe = navigation.addListener('focus', () => {
-      loadData();
+      loadWallets();
     });
 
     return unsubscribe;
@@ -25,27 +33,36 @@ export const HomeScreen = ({navigation}: {navigation: any}) => {
 
   const calculateTotal = () => {
     let result = 0;
-    walletContext?.wallets.forEach(
-      (wallet: Wallet) => (result += wallet.amount / wallet.convertRate),
+    walletContext.wallets.forEach(
+      (wallet: Wallet) =>
+        (result += Utils.calculateWalletValue(
+          wallet.amount,
+          wallet.convertRate,
+          false,
+        )),
     );
     return result;
   };
 
   const content = (
-    <View>
+    <ScrollView
+      contentContainerStyle={[Theme.flex, Theme.alignItemsCenter]}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
       <View>
         <Image source={ImageStorage.usd} />
         <Text>Total</Text>
-        <Text>{calculateTotal()} USD</Text>
+        <Text>{calculateTotal().toFixed(2)} USD</Text>
       </View>
       <View>
-        {walletContext?.wallets.map((wallet: Wallet) => (
+        {walletContext.wallets.map((wallet: Wallet) => (
           <View key={`wallet-${wallet.shortName}`}>
             <WalletItem navigation={navigation} wallet={wallet} />
           </View>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
   return content;
 };

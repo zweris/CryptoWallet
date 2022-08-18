@@ -1,8 +1,8 @@
 import {Currency} from 'enums/enums';
+import {Utils} from 'helpers/utils';
 import {Wallet} from 'models/wallet';
 import React from 'react';
-import {Image, Text, View} from 'react-native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import {Image, Text, View, TouchableOpacity} from 'react-native';
 
 export const WalletItem = (props: {wallet: Wallet; navigation: any}) => {
   const {wallet, navigation} = props;
@@ -19,7 +19,11 @@ export const WalletItem = (props: {wallet: Wallet; navigation: any}) => {
         </View>
         <Text>{wallet.name}</Text>
         <Text>{`${wallet.amount} ${wallet.shortName}`}</Text>
-        <Text>{`0 ${Currency.USD}`}</Text>
+        <Text>{`${Utils.calculateWalletValue(
+          wallet.amount,
+          wallet.convertRate,
+        ).toFixed(0)} ${Currency.USD}`}</Text>
+        <Text>{wallet.convertRate}</Text>
       </TouchableOpacity>
     </View>
   );

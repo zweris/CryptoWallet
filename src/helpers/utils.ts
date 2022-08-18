@@ -16,4 +16,13 @@ export class Utils {
     }
     return await (response.json() as unknown as Promise<CurrencyExchange>);
   };
+
+  public static calculateWalletValue = (
+    amount: number,
+    rate: number,
+    isBaseCurrency: boolean,
+  ) => {
+    const result = isBaseCurrency ? amount * rate : amount / rate;
+    return result;
+  };
 }

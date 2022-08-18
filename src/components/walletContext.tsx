@@ -1,49 +1,23 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {ImageStorage} from 'helpers/imageStorage';
-import {Wallet} from 'models/wallet';
+import {
+  bankerWallet,
+  bitcoinWallet,
+  etherWallet,
+  paxDollarWallet,
+  Wallet,
+} from 'models/wallet';
 import {createContext} from 'react';
 import {Utils} from 'helpers/utils';
 import {Currency} from 'enums/enums';
-
-const bitcoin: Wallet = {
-  name: 'Bitcoin',
-  shortName: 'BTC',
-  currencyCode: Currency.BTC,
-  amount: 0.31244124,
-  convertRate: 1,
-  icon: ImageStorage.btc,
-};
-const ether: Wallet = {
-  name: 'Ether',
-  shortName: 'ETH',
-  currencyCode: Currency.ETH,
-  amount: 0.327834478541236547,
-  convertRate: 1,
-  icon: ImageStorage.eth,
-};
-const paxDollar: Wallet = {
-  name: 'Pax Dollar',
-  shortName: 'PAX',
-  currencyCode: Currency.USDP,
-  amount: 0.32,
-  convertRate: 1,
-  icon: ImageStorage.pax,
-};
-const banker: Wallet = {
-  name: 'Banker',
-  shortName: 'BNK',
-  currencyCode: Currency.BNK,
-  amount: 131231567,
-  convertRate: 1,
-  icon: ImageStorage.bnk,
-};
+import update, {Spec} from 'immutability-helper';
+import {CurrencyExchange} from 'models/api/currencyExchange';
 
 type WalletProviderProps = {children: React.ReactNode};
 
 const WalletContext = createContext<
   | {
       wallets: Wallet[];
-      fetchWalletRates: () => void;
+      fetchWallets:() => void;
     }
   | undefined
 >(undefined);
@@ -61,27 +35,58 @@ export const useWalletContext = () => {
 };
 
 export const WalletProvider = ({children}: WalletProviderProps) => {
-  const [wallets, setWallets] = useState<Wallet[]>([
-    bitcoin,
-    ether,
-    paxDollar,
-    banker,
-  ]);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
 
-  const fetchWalletRates = useCallback(() => {
-    const ratesPromises = wallets.map((wallet: Wallet) =>
+  const fetchWalletsWithRates = async (): Promise<Wallet[]> => {
+    const initWallets = [
+      bitcoinWallet,
+      etherWallet,
+      paxDollarWallet,
+      bankerWallet,
+    ];
+    const currencyExchangePromises = initWallets.map((wallet: Wallet) =>
       Utils.getCurrencyExchangeRate(wallet.currencyCode, Currency.USD),
     );
-    Promise.all(ratesPromises).then(response => console.log(response[0]));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    const currencyExchanges = await Promise.all(currencyExchangePromises);
+    initWallets.forEach((wallet_1: Wallet, walletIndex: number) => {
+      const currencyExchangeIndex = currencyExchanges.findIndex(
+        (item: CurrencyExchange) => item.currencyFrom === wallet_1.currencyCode,
+      );
+      initWallets[walletIndex].convertRate =
+        currencyExchanges[currencyExchangeIndex].last;
+    });
+    return initWallets;
+  };
+
+  const fetchWallet = async (wallet: Wallet) => {
+    const currencyExchange = await Utils.getCurrencyExchangeRate(
+      wallet.currencyCode,
+      Currency.USD,
+    );
+    const walletIndex = wallets.findIndex(
+      (item: Wallet) => item.currencyCode === wallet.currencyCode,
+    );
+    const updateObj: Spec<Wallet[]> = {};
+    updateObj[walletIndex] = {
+      convertRate: {$set: currencyExchange.last},
+    };
+
+    const updatedWallets = update(wallets, updateObj);
+    setWallets(updatedWallets);
+  };
+
+  const fetchWallets = useCallback(async () => {
+    const result = await fetchWalletsWithRates();
+    setWallets(result);
   }, []);
 
   const contextValue = useMemo(
     () => ({
       wallets,
-      fetchWalletRates,
+      fetchWallets,
     }),
-    [wallets, fetchWalletRates],
+    [wallets, fetchWallets],
   );
 
   return (
