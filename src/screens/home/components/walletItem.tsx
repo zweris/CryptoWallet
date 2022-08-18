@@ -12,8 +12,8 @@ export const WalletItem = (props: {wallet: Wallet; navigation: any}) => {
   };
 
   const content = (
-    <View>
-      <TouchableOpacity onPress={handleOnPress}>
+    <TouchableOpacity onPress={handleOnPress}>
+      <View>
         <View>
           <Image source={wallet.icon} />
         </View>
@@ -22,10 +22,10 @@ export const WalletItem = (props: {wallet: Wallet; navigation: any}) => {
         <Text>{`${Utils.calculateWalletValue(
           wallet.amount,
           wallet.convertRate,
+          false,
         ).toFixed(0)} ${Currency.USD}`}</Text>
-        <Text>{wallet.convertRate}</Text>
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 
   return content;

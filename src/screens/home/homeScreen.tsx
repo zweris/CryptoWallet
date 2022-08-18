@@ -46,15 +46,19 @@ export const HomeScreen = ({navigation}: {navigation: any}) => {
 
   const content = (
     <ScrollView
-      contentContainerStyle={[Theme.flex, Theme.alignItemsCenter]}
+      contentContainerStyle={[Theme.container]}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }>
       <View>
-        <Image source={ImageStorage.usd} />
-        <Text>Total</Text>
-        <Text>{calculateTotal().toFixed(2)} USD</Text>
+        <Text style={Theme.titleTotal}>Total</Text>
+        <View style={[Theme.width90pct, Theme.flexSpaceBetweenRow]}>
+          <Image source={ImageStorage.usd} />
+          <Text style={Theme.titleAmount}>{calculateTotal().toFixed(2)}</Text>
+          <Text style={Theme.titleTotalCurrency}>USD</Text>
+        </View>
       </View>
+      <Text style={Theme.titleTotal}>Wallets</Text>
       <View>
         {walletContext.wallets.map((wallet: Wallet) => (
           <View key={`wallet-${wallet.shortName}`}>
